@@ -1,0 +1,27 @@
+# Virtual environments
+*_venv/
+
+# Data files (large CSVs from MIMIC-III pipeline) — keep preprocessing scripts
+data/extracted/
+data/cohort/
+data/raw/
+data/processed/
+data/final/
+
+# Training logs
+logs/
+txt_logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# Cloned repos (they have their own .git)
+Repo Source/
+
+# OS
+.DS_Store
+Thumbs.db
