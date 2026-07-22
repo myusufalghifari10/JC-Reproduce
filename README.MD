@@ -114,8 +114,6 @@ Script `data/preprocessing/bridge_to_posnegdm.py`:
   yang sudah ada).
 
 **Kendala Environment:**
-- Transformers versi baru (4.53.x) menghapus `SequenceSummary` dari
-  `modeling_utils`. Import ini tidak dipakai di kode -- dihapus.
 - Argumen `--batch_size` hanya mempengaruhi training batch, bukan test batch.
   `get_test_batch()` memiliki default `batch_size=563` yang menyebabkan OOM
   pada GPU 8GB saat `test_complete_traj`. Diturunkan ke 128.
@@ -219,66 +217,6 @@ Yang dapat diverifikasi:
     PosNegDM digunakan apa adanya tanpa dilatih ulang dengan data MIMIC-III
     v1.4.
 
-## Struktur Repository
-
-```
-.
-├── train.py                       # Main entry point training
-├── utils.py                       # Helper utilities (read_dst, dll)
-├── nn_train.py                    # Standalone mortality classifier training
-├── requirements.txt               # Dependencies
-├── environment.yml                # Frozen conda environment (asli)
-├── README.MD                      # Dokumentasi ini
-├── .gitignore
-├── data/
-│   ├── preprocessing/             # Script pipeline (notebook + bridge)
-│   │   ├── AIClinician_Data_extract_MIMIC3_140219.ipynb
-│   │   ├── AIClinician_sepsis3_def_160219.m
-│   │   ├── AIClinician_mimic3_dataset_160219.m
-│   │   ├── process_interventions.ipynb
-│   │   ├── preprocess_data.ipynb
-│   │   └── bridge_to_posnegdm.py
-│   ├── extracted/                 # Output SQL extraction (ignored)
-│   ├── cohort/                    # Output MATLAB cohort (ignored)
-│   ├── raw/                       # Output MATLAB dataset (ignored)
-│   ├── processed/                 # Output Raghu preprocessing (ignored)
-│   ├── final/                     # Output bridge (ignored)
-│   └── NNfinal.pth                # Pretrained mortality classifier
-├── dualsight/                     # Decision Transformer stack
-│   ├── models/
-│   ├── training/
-│   └── evaluation/
-├── nnclsfier/                     # Mortality classifier
-└── assets/                        # Gambar untuk README
-```
-
-## Cara Menjalankan
-
-```bash
-# Setup environment (Python 3.10+ dengan PyTorch)
-pip install -r requirements.txt
-
-# Bridge data (jika belum ada di data/final/)
-python data/preprocessing/bridge_to_posnegdm.py
-
-# Training
-python train.py --dst sepsis_final_data_withTimes.csv --batch_size 32
-```
-
-Parameter tambahan:
-```
---pos_only           Hanya gunakan trajektori positif (default: False)
---mode               'normal' atau 'delayed' (default: delayed)
---K                  Context window (default: 10)
---batch_size         Training batch size (default: 64, turunkan jika OOM)
---model_type         'dt' (Decision Transformer) atau 'bc' (default: dt)
---embed_dim          Hidden dimension (default: 128)
---n_layer            Jumlah transformer layers (default: 3)
---n_head             Jumlah attention heads (default: 1)
---learning_rate      Learning rate (default: 1e-4)
---max_iters          Jumlah iterasi training (default: 20)
---num_steps_per_iter Steps per iterasi (default: 10000)
-```
 
 ## Referensi
 
