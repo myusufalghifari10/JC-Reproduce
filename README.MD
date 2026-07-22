@@ -172,20 +172,23 @@ Script `data/preprocessing/bridge_to_posnegdm.py`:
 |--------|:-:|:-:|
 | Action Accuracy (Positive Test) | 94.6% | 92.0% |
 | Action Accuracy (Test, all) | - | 89.5% |
-| Survival Rate | **97.39%** | - |
-| Mortality Rate (Step-by-step) | 2.61% | - |
-| Mortality Rate (Complete Trajectory) | 0.18% | - |
-| Mortality Classifier Accuracy | 96.7% | (pakai pretrained) |
+| Survival Rate | **97.39%** (dari step-by-step) | 99.90%* |
+| Mortality Rate (Step-by-step) | 2.61% | 0.10%* |
+| Mortality Rate (Complete Trajectory) | 0.18% | 0.29%* |
+| Mortality Classifier Accuracy | 96.7% | 96.7% (pretrained) |
 | Dataset trajectories | 19.614 | 20.948 |
-| Hyperparameter (alpha, beta, gamma) | (1, 0.1, 1) | (1, 0.8, 1) |
+| Hyperparameter (alpha, beta, gamma) | (1, 0.1, 1) | (1, 0.8, 1) (karena di source code pakai ini dan ga diubah) |
 
 Catatan:
-- Survival/mortality rate tidak dapat dihitung pada reproduce karena
-  membutuhkan simulator untuk mengevaluasi dampak keputusan model terhadap
-  pasien. Paper menghitung metrik ini dengan menjalankan model secara
-  autoregressive dan mengecek prediksi state menggunakan mortality classifier.
-- Beta=0.8 di reproduce (default dari source code), sedangkan paper
-  melaporkan hasil dengan beta=0.1 pada tabel utama.
+- (*) Mortality rate pada reproduce dihitung menggunakan mortality
+  classifier `NNfinal.pth` yang sama dengan paper, tapi classifier ini
+  dilatih dengan data preprocessing versi penulis (bukan pipeline
+  Komorowski + Raghu). Karena distribusi fitur data kita berbeda (min-max
+  scaling [0,1] vs preprocessing versi penulis), hasil mortality rate
+  tidak dapat dipercaya dan tidak bisa dibandingkan secara langsung
+  dengan paper.
+- Beta=0.8 di reproduce (hardcoded di seq_trainer.py), sedangkan paper
+  melaporkan hasil utama dengan beta=0.1.
 - Dataset reproduce lebih besar (20.948 vs 19.614 trajectories) karena
   menggunakan MIMIC-III v1.4 yang memiliki lebih banyak data daripada v1.3.
 - Action accuracy reproduce lebih rendah kemungkinan karena perbedaan
@@ -198,15 +201,7 @@ Yang dapat diverifikasi:
 - Accuracy naik dari random (~4%) ke 89.5%
 - State prediction error menurun (state loss: 2.464 -> 0.085)
 - Model mampu membedakan trajektori positif dan negatif (92% vs 85.3%)
-dan accuracy pembedaan positif/negatif. Dataset dan preprocessing yang
-digunakan paper tidak persis sama dengan reproduce ini, sehingga perbandingan
-langsung tidak dapat dilakukan.
 
-Yang dapat diverifikasi:
-- Model konvergen: loss turun dari 5.613 ke 2.716
-- Accuracy naik dari random (~4%) ke 89.5%
-- State prediction error menurun (state loss: 2.464 -> 0.085)
-- Model mampu membedakan trajektori positif dan negatif (92% vs 85.3%)
 
 ## Keterbatasan Reproduksi
 
@@ -220,10 +215,7 @@ Yang dapat diverifikasi:
 3.  **GPU terbatas.** RTX 5060 dengan 8GB VRAM membutuhkan penurunan batch
     size test dari 563 ke 128. Paper kemungkinan menggunakan GPU dengan VRAM
     lebih besar.
-4.  **Tidak ada simulator.** Evaluasi paper menggunakan simulator untuk
-    mengukur survival rate. Reproduce ini hanya memiliki evaluasi offline
-    (accuracy prediksi action + state).
-5.  **Pretrained mortality classifier.** Model `NNfinal.pth` dari repo
+4.  **Pretrained mortality classifier.** Model `NNfinal.pth` dari repo
     PosNegDM digunakan apa adanya tanpa dilatih ulang dengan data MIMIC-III
     v1.4.
 
